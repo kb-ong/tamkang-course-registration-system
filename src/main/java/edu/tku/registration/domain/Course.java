@@ -13,6 +13,8 @@ import jakarta.persistence.UniqueConstraint;
 import jakarta.persistence.Version;
 
 @Entity
+@org.hibernate.annotations.Check(name = "ck_course_seats",
+        constraints = "available_seats >= 0 AND available_seats <= capacity")
 @Table(uniqueConstraints = @UniqueConstraint(
         name = "uk_course_code_semester", columnNames = {"course_code", "semester_id"}))
 public class Course {
