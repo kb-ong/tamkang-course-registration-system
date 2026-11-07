@@ -29,6 +29,7 @@ public class RegistrationService {
     private final RegistrationRepository registrationRepository;
     private final AuditLogRepository auditLogRepository;
     private final TransactionTemplate transactionTemplate;
+    private final TransactionTemplate readOnlyTemplate;
     private final Clock clock;
 
     public RegistrationService(StudentRepository studentRepository, CourseRepository courseRepository,
@@ -40,6 +41,8 @@ public class RegistrationService {
         this.registrationRepository = registrationRepository;
         this.auditLogRepository = auditLogRepository;
         this.transactionTemplate = new TransactionTemplate(transactionManager);
+        this.readOnlyTemplate = new TransactionTemplate(transactionManager);
+        this.readOnlyTemplate.setReadOnly(true);
         this.clock = clock;
     }
 
@@ -50,6 +53,12 @@ public class RegistrationService {
                 return transactionTemplate.execute(status -> attemptRegister(studentId, courseId));
             } catch (ConcurrencyFailureException ex) {
                 // retry with a fresh transaction and fresh read
+            }
+        }
+        if (courseId != null) {
+            Course latest = readOnlyTemplate.execute(status -> courseRepository.findById(courseId).orElse(null));
+            if (latest != null && latest.getAvailableSeats() <= 0) {
+                throw new CourseFullException(latest.getCourseCode());
             }
         }
         throw new RegistrationConflictException();

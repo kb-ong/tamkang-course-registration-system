@@ -267,11 +267,11 @@ class RegistrationControllerTest {
     }
 
     @Test
-    @DisplayName("FR3-EX1: a course with 0 seats gives 409 'Course MA101 is full.' and writes nothing")
+    @DisplayName("FR3-EX1: a course with 0 seats gives 409 'Course Full: MA101 has no available seats.' and writes nothing")
     void fullCourse() throws Exception {
         Long ma101 = idOf("MA101", "115-1");
         long regsBefore = registrationRepository.count();
-        register(BOB, ma101).andExpect(jsonError(409, "Course MA101 is full."));
+        register(BOB, ma101).andExpect(jsonError(409, "Course Full: MA101 has no available seats."));
         assertThat(fresh(ma101).getAvailableSeats()).isZero();
         assertNothingWritten(regsBefore);
     }

@@ -1,4 +1,4 @@
-// FR2 / FR3 frontend criteria (API modules mocked): FR2-UI1..UI7, FR3-UI1..UI7, NFR5-AC1, NFR5-AC2.
+// FR2 / FR3 frontend criteria (API modules mocked): FR2-UI1..UI7, FR3-UI1..UI6 (UI7 superseded by FR6), NFR5-AC1, NFR5-AC2.
 import { screen, waitFor, within } from "@testing-library/react";
 import { beforeEach, describe, expect, it, vi } from "vitest";
 
@@ -276,18 +276,18 @@ describe("FR3: register", () => {
   });
 
   it("FR3-UI4: a 409 shows the server message, no success alert, and refetches with current filters", async () => {
-    mockRegister.mockReset().mockRejectedValue(new ApiError(409, "Course CS101 is full."));
+    mockRegister.mockReset().mockRejectedValue(new ApiError(409, "Course Full: CS101 has no available seats."));
     const { user } = await renderTable();
 
     await user.click(screen.getByTestId("register-btn-1"));
 
-    expect(await screen.findByTestId("register-error")).toHaveTextContent("Course CS101 is full.");
+    expect(await screen.findByTestId("register-error")).toHaveTextContent("Course Full: CS101 has no available seats.");
     expect(screen.queryByTestId("register-success")).not.toBeInTheDocument();
     await waitFor(() => expect(mockCourses).toHaveBeenCalledTimes(2));
     expect(lastArg()).toEqual({ semester: "115-1" });
     // feedback stays after refetch
     await screen.findByTestId("course-row-1");
-    expect(screen.getByTestId("register-error")).toHaveTextContent("Course CS101 is full.");
+    expect(screen.getByTestId("register-error")).toHaveTextContent("Course Full: CS101 has no available seats.");
   });
 
   it("FR3-UI4: any other 4xx (404) shows its own message and refetches", async () => {
@@ -360,7 +360,7 @@ describe("FR3: register", () => {
   });
 
   it("FR3-UI6: changing the semester clears the feedback", async () => {
-    mockRegister.mockReset().mockRejectedValue(new ApiError(409, "Course CS101 is full."));
+    mockRegister.mockReset().mockRejectedValue(new ApiError(409, "Course Full: CS101 has no available seats."));
     const { user } = await renderTable();
     await user.click(screen.getByTestId("register-btn-1"));
     await screen.findByTestId("register-error");
@@ -373,23 +373,7 @@ describe("FR3: register", () => {
     await waitFor(() => expect(screen.queryByTestId("register-error")).not.toBeInTheDocument());
     expect(screen.queryByTestId("register-success")).not.toBeInTheDocument();
   });
-
-  it("FR3-UI7: a full unregistered course keeps an enabled Register button and calls the API", async () => {
-    const listing = listingFixture();
-    listing.courses[2].registered = false;
-    mockRegister.mockReset().mockRejectedValue(new ApiError(409, "Course MA101 is full."));
-    const { user } = await renderCourses(listing);
-    await screen.findByTestId("course-row-3");
-
-    expect(screen.getByTestId("course-seats-3").textContent).toBe("0");
-    expect(screen.getByTestId("register-btn-3")).toBeEnabled();
-
-    await user.click(screen.getByTestId("register-btn-3"));
-
-    expect(mockRegister).toHaveBeenCalledTimes(1);
-    expect(mockRegister.mock.calls[0]).toEqual([3]);
-    expect(await screen.findByTestId("register-error")).toHaveTextContent("Course MA101 is full.");
-  });
+  // FR3-UI7 (enabled button on a full course) was superseded by FR6-UI1/UI2 (see CourseFullUi.test.tsx).
 });
 
 describe("NFR5: usability", () => {

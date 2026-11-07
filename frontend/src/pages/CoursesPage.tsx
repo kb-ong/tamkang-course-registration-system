@@ -199,6 +199,11 @@ export function CoursesPage() {
               <Tag color={color} className="seat-cell__tag">
                 <span data-testid={`course-seats-${c.id}`}>{c.availableSeats}</span>
               </Tag>
+              {c.availableSeats <= 0 && (
+                <Tag color="red" data-testid={`full-tag-${c.id}`}>
+                  Full
+                </Tag>
+              )}
               <span className="seat-cell__capacity">of {c.capacity}</span>
             </div>
             <Progress
@@ -221,12 +226,17 @@ export function CoursesPage() {
           <Button
             type="primary"
             data-testid={`register-btn-${c.id}`}
-            disabled={c.registered || pending.has(c.id)}
+            disabled={c.registered || pending.has(c.id) || c.availableSeats <= 0}
             loading={pending.has(c.id)}
             onClick={() => void handleRegister(c)}
           >
             Register
           </Button>
+          {!c.registered && c.availableSeats <= 0 && (
+            <span className="full-note" data-testid={`full-note-${c.id}`}>
+              No seats available.
+            </span>
+          )}
           {c.registered && (
             <Tag
               color="green"
