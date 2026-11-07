@@ -21,6 +21,9 @@ INSERT INTO registration (student_id, course_id, registration_date) VALUES
      (SELECT c.id FROM course c JOIN semester s ON c.semester_id = s.id WHERE c.course_code = 'MA101' AND s.code = '115-1'),
      TIMESTAMP '2026-08-10 10:00:00');
 
+-- WARNING: the 115-1 period below ends 2026-12-31 23:59:59. After that date the app reports
+-- registration as closed (register and drop are refused). To keep working, edit the end_at of
+-- the 115-1 row below (the value TIMESTAMP '2026-12-31 23:59:59').
 INSERT INTO registration_period (semester_id, start_at, end_at) VALUES
     ((SELECT id FROM semester WHERE code = '115-1'), TIMESTAMP '2026-08-01 00:00:00', TIMESTAMP '2026-12-31 23:59:59'),
     ((SELECT id FROM semester WHERE code = '114-2'), TIMESTAMP '2026-01-15 00:00:00', TIMESTAMP '2026-02-28 23:59:59');
