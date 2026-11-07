@@ -99,15 +99,16 @@ describe("Dashboard page", () => {
     expect(screen.getByTestId("semester-name").textContent).toBe("2027 Fall (116-1)");
   });
 
-  it("FR1-UI11: app shell shows title, user name and exactly one 'Dashboard' menu item", async () => {
+  it("FR1-UI11: app shell shows title, user name and exactly two menu items: Dashboard and Courses", async () => {
     await renderDashboard();
 
     expect(screen.getByTestId("app-title")).toHaveTextContent("Tamkang Course Registration System");
     expect(screen.getByTestId("user-name").textContent).toBe("Alice Chen");
 
     const items = within(screen.getByTestId("side-nav")).getAllByRole("menuitem");
-    expect(items).toHaveLength(1);
+    expect(items).toHaveLength(2);
     expect(items[0].textContent?.trim()).toBe("Dashboard");
+    expect(items[1].textContent?.trim()).toBe("Courses");
   });
 
   it("FR1-UI12: clicking 'Log out' calls logout once and shows the login card with 'You have been logged out.'", async () => {

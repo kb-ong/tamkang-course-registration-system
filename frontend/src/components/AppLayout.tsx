@@ -1,6 +1,6 @@
 import { useState } from 'react';
 import { Avatar, Button, Grid, Layout, Menu } from 'antd';
-import { DashboardOutlined, LogoutOutlined } from '@ant-design/icons';
+import { BookOutlined, DashboardOutlined, LogoutOutlined } from '@ant-design/icons';
 import { Outlet, useLocation, useNavigate } from 'react-router-dom';
 import { useAuth } from '../auth/AuthContext';
 import { BrandMark } from './BrandMark';
@@ -12,6 +12,11 @@ const NAV_ITEMS = [
     key: '/dashboard',
     icon: <DashboardOutlined aria-hidden="true" />,
     label: 'Dashboard',
+  },
+  {
+    key: '/courses',
+    icon: <BookOutlined aria-hidden="true" />,
+    label: 'Courses',
   },
 ];
 

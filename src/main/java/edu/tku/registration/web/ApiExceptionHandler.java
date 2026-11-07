@@ -11,6 +11,11 @@ import org.springframework.web.ErrorResponse;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
 
+import edu.tku.registration.service.AlreadyRegisteredException;
+import edu.tku.registration.service.CourseFullException;
+import edu.tku.registration.service.CourseNotFoundException;
+import edu.tku.registration.service.RegistrationConflictException;
+import edu.tku.registration.service.SemesterNotFoundException;
 import edu.tku.registration.service.StudentNotFoundException;
 
 /** Turns exceptions into {@code {"message": "..."}} JSON bodies. Never exposes stack traces. */
@@ -27,6 +32,17 @@ public class ApiExceptionHandler {
     @ExceptionHandler(StudentNotFoundException.class)
     public ResponseEntity<ApiError> handleStudentNotFound(StudentNotFoundException ex) {
         return error(HttpStatus.NOT_FOUND, "Student not found.");
+    }
+
+    @ExceptionHandler({SemesterNotFoundException.class, CourseNotFoundException.class})
+    public ResponseEntity<ApiError> handleNotFound(RuntimeException ex) {
+        return error(HttpStatus.NOT_FOUND, ex.getMessage());
+    }
+
+    @ExceptionHandler({AlreadyRegisteredException.class, CourseFullException.class,
+            RegistrationConflictException.class})
+    public ResponseEntity<ApiError> handleConflict(RuntimeException ex) {
+        return error(HttpStatus.CONFLICT, ex.getMessage());
     }
 
     @ExceptionHandler(HttpMessageNotReadableException.class)
