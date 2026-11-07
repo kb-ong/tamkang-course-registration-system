@@ -228,10 +228,18 @@ export function CoursesPage() {
       title: 'Action',
       key: 'action',
       width: 200,
-      render: (_, c) => (
+      render: (_, c) => {
+        const showFull = !c.registered && c.availableSeats <= 0;
+        const showClosed = !c.registered && !open;
+        const describedBy =
+          [showFull && `full-note-${c.id}`, showClosed && `closed-note-${c.id}`]
+            .filter(Boolean)
+            .join(' ') || undefined;
+        return (
         <div className="action-cell">
           <Button
             type="primary"
+            aria-describedby={describedBy}
             data-testid={`register-btn-${c.id}`}
             disabled={c.registered || pending.has(c.id) || c.availableSeats <= 0 || !open}
             loading={pending.has(c.id)}
@@ -239,13 +247,13 @@ export function CoursesPage() {
           >
             Register
           </Button>
-          {!c.registered && c.availableSeats <= 0 && (
-            <span className="full-note" data-testid={`full-note-${c.id}`}>
+          {showFull && (
+            <span className="full-note" id={`full-note-${c.id}`} data-testid={`full-note-${c.id}`}>
               No seats available.
             </span>
           )}
-          {!c.registered && !open && (
-            <span className="closed-note" data-testid={`closed-note-${c.id}`}>
+          {showClosed && (
+            <span className="closed-note" id={`closed-note-${c.id}`} data-testid={`closed-note-${c.id}`}>
               Registration is closed.
             </span>
           )}
@@ -260,7 +268,8 @@ export function CoursesPage() {
             </Tag>
           )}
         </div>
-      ),
+        );
+      },
     },
   ];
 

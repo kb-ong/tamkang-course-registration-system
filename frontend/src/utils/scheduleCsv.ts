@@ -14,7 +14,7 @@ function quote(field: string): string {
 
 /** Text fields: neutralise spreadsheet formulas, then quote. */
 function text(field: string): string {
-  const guarded = /^[=+\-@\t]/.test(field) ? `'${field}` : field;
+  const guarded = /^[=+\-@\t\r]/.test(field) ? `'${field}` : field;
   return quote(guarded);
 }
 
@@ -27,7 +27,7 @@ export function buildScheduleCsv(courses: RegisteredCourse[], totalCredits: numb
         text(c.name),
         String(c.credits),
         text(c.instructor),
-        quote(c.semesterCode),
+        text(c.semesterCode),
         quote(formatDateTime(c.registeredAt)),
       ].join(','),
     );

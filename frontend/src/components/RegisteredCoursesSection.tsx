@@ -38,6 +38,18 @@ export function RegisteredCoursesSection() {
   const requestSeq = useRef(0);
   const selectedRef = useRef<string | null>(null);
   const pendingRef = useRef<number | null>(null);
+  const focusRequest = useRef<string | null>(null);
+
+  // Moves focus after the render that mounted the target element.
+  useEffect(() => {
+    const selector = focusRequest.current;
+    if (!selector) return;
+    const el = document.querySelector<HTMLElement>(selector);
+    if (el) {
+      focusRequest.current = null;
+      el.focus();
+    }
+  });
 
   const load = useCallback(
     async (code?: string) => {
@@ -90,6 +102,7 @@ export function RegisteredCoursesSection() {
 
   const handleDropClick = (courseId: number) => {
     setFeedback(null);
+    focusRequest.current = `[data-testid="drop-confirm-${courseId}"]`;
     setConfirming(courseId);
   };
 
@@ -100,6 +113,7 @@ export function RegisteredCoursesSection() {
     try {
       const result = await dropCourse(course.courseId);
       if (!mounted.current) return;
+      focusRequest.current = '#drop-feedback';
       setFeedback({ kind: 'success', text: result.message });
       setConfirming(null);
       refetch();
@@ -110,6 +124,7 @@ export function RegisteredCoursesSection() {
         return;
       }
       setConfirming(null);
+      focusRequest.current = '#drop-feedback';
       if (err instanceof ApiError && err.status >= 400 && err.status < 500) {
         setFeedback({ kind: 'error', text: err.message });
         refetch();
@@ -200,7 +215,10 @@ export function RegisteredCoursesSection() {
             <Button
               size="small"
               data-testid={`drop-cancel-${c.courseId}`}
-              onClick={() => setConfirming(null)}
+              onClick={() => {
+                focusRequest.current = `[data-testid="drop-btn-${c.courseId}"]`;
+                setConfirming(null);
+              }}
             >
               Cancel
             </Button>
@@ -210,6 +228,7 @@ export function RegisteredCoursesSection() {
             danger
             data-testid={`drop-btn-${c.courseId}`}
             disabled={!open}
+            aria-describedby={open ? undefined : 'drop-closed-note'}
             onClick={() => handleDropClick(c.courseId)}
           >
             Drop
@@ -291,17 +310,20 @@ export function RegisteredCoursesSection() {
       )}
 
       {feedback && (
-        <Alert
-          className="registered-feedback no-print"
-          data-testid={feedback.kind === 'success' ? 'drop-success' : 'drop-error'}
-          type={feedback.kind}
-          showIcon
-          message={feedback.text}
-        />
+        <div id="drop-feedback" data-testid="drop-feedback" tabIndex={-1} className="no-print">
+          <Alert
+            className="registered-feedback"
+            data-testid={feedback.kind === 'success' ? 'drop-success' : 'drop-error'}
+            type={feedback.kind}
+            showIcon
+            message={feedback.text}
+          />
+        </div>
       )}
 
       {data && period && !open && (
         <Alert
+          id="drop-closed-note"
           className="registered-note no-print"
           data-testid="drop-closed-note"
           type="warning"

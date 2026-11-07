@@ -107,10 +107,12 @@ class RegistrationConcurrencyTest {
     @Test
     @DisplayName("FR3-EX12: two students racing for the last seat, 20 rounds: exactly one wins and seats end at 0")
     void lastSeatRace() throws Exception {
+        int conflicts = 0;
         for (int round = 1; round <= 20; round++) {
             Long id = createCourse("LAST1", 1);
             try {
                 List<Throwable> outcomes = race(id, ALICE, BOB);
+                conflicts += (int) outcomes.stream().filter(t -> t instanceof RegistrationConflictException).count();
                 assertThat(successes(outcomes)).as("round %d successes", round).isEqualTo(1);
                 assertAll(outcomes, CourseFullException.class, RegistrationConflictException.class);
                 assertThat(seats(id)).as("round %d seats", round).isZero();
@@ -120,6 +122,9 @@ class RegistrationConcurrencyTest {
                 removeCourse(id);
             }
         }
+        // Diagnostic only, no assertion. Counts conflicts that survived the retries (RegistrationConflictException);
+        // conflicts absorbed by a successful retry are not visible at this level.
+        System.out.println("TIDY-7a: saveAndFlush conflicts observed = " + conflicts);
     }
 
     @Test

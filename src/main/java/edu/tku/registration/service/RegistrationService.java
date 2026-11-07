@@ -2,7 +2,10 @@ package edu.tku.registration.service;
 
 import java.time.Clock;
 import java.time.LocalDateTime;
+import java.util.Optional;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.dao.ConcurrencyFailureException;
 import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.stereotype.Service;
@@ -21,6 +24,8 @@ import edu.tku.registration.repository.StudentRepository;
 
 @Service
 public class RegistrationService {
+
+    private static final Logger log = LoggerFactory.getLogger(RegistrationService.class);
 
     static final int MAX_ATTEMPTS = 5;
 
@@ -50,13 +55,16 @@ public class RegistrationService {
 
     /** Not @Transactional: each attempt gets its own transaction so a lock conflict can be retried. */
     public RegistrationResult register(String studentId, Long courseId) {
+        ConcurrencyFailureException last = null;
         for (int attempt = 1; attempt <= MAX_ATTEMPTS; attempt++) {
             try {
                 return transactionTemplate.execute(status -> attemptRegister(studentId, courseId));
             } catch (ConcurrencyFailureException ex) {
+                last = ex;
                 // retry with a fresh transaction and fresh read
             }
         }
+        logRetriesExhausted("register", courseId, last);
         if (courseId != null) {
             Course latest = readOnlyTemplate.execute(status -> courseRepository.findById(courseId).orElse(null));
             if (latest != null && latest.getAvailableSeats() <= 0) {
@@ -66,11 +74,22 @@ public class RegistrationService {
         throw new RegistrationConflictException();
     }
 
+    private void logRetriesExhausted(String operation, Long courseId, ConcurrencyFailureException last) {
+        if (last != null) {
+            log.warn("Registration {} for course {} failed after {} attempts due to concurrent updates: {}: {}",
+                    operation, courseId, MAX_ATTEMPTS, last.getClass().getName(), last.getMessage());
+        }
+    }
+
+    private Course loadCourse(Long courseId) {
+        Optional<Course> found = courseId == null ? Optional.empty() : courseRepository.findById(courseId);
+        return found.orElseThrow(() -> new CourseNotFoundException(courseId));
+    }
+
     private RegistrationResult attemptRegister(String studentId, Long courseId) {
         Student student = studentRepository.findByStudentId(studentId)
                 .orElseThrow(() -> new StudentNotFoundException(studentId));
-        Course course = (courseId == null ? java.util.Optional.<Course>empty() : courseRepository.findById(courseId))
-                .orElseThrow(() -> new CourseNotFoundException(courseId));
+        Course course = loadCourse(courseId);
         if (!semesterService.isRegistrationOpen(course.getSemester().getCode())) {
             throw new RegistrationClosedException(course.getSemester().getCode());
         }
@@ -97,21 +116,23 @@ public class RegistrationService {
 
     /** Not @Transactional: same per-attempt transaction and retry design as register. */
     public DropResult drop(String studentId, Long courseId) {
+        ConcurrencyFailureException last = null;
         for (int attempt = 1; attempt <= MAX_ATTEMPTS; attempt++) {
             try {
                 return transactionTemplate.execute(status -> attemptDrop(studentId, courseId));
             } catch (ConcurrencyFailureException ex) {
+                last = ex;
                 // retry with a fresh transaction and fresh read
             }
         }
+        logRetriesExhausted("drop", courseId, last);
         throw new RegistrationConflictException();
     }
 
     private DropResult attemptDrop(String studentId, Long courseId) {
         Student student = studentRepository.findByStudentId(studentId)
                 .orElseThrow(() -> new StudentNotFoundException(studentId));
-        Course course = (courseId == null ? java.util.Optional.<Course>empty() : courseRepository.findById(courseId))
-                .orElseThrow(() -> new CourseNotFoundException(courseId));
+        Course course = loadCourse(courseId);
         String semesterCode = course.getSemester().getCode();
         if (!semesterService.isRegistrationOpen(semesterCode)) {
             throw new DropClosedException(semesterCode);
