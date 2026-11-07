@@ -4,6 +4,7 @@ import { Navigate, Route, Routes } from 'react-router-dom';
 import { AuthProvider } from './auth/AuthContext';
 import { ProtectedRoute } from './auth/ProtectedRoute';
 import { AppLayout } from './components/AppLayout';
+import { CoursesPage } from './pages/CoursesPage';
 import { DashboardPage } from './pages/DashboardPage';
 import { LoginPage } from './pages/LoginPage';
 
@@ -53,6 +54,7 @@ export default function App() {
             <Route element={<ProtectedRoute />}>
               <Route element={<AppLayout />}>
                 <Route path="/dashboard" element={<DashboardPage />} />
+                <Route path="/courses" element={<CoursesPage />} />
               </Route>
             </Route>
             <Route path="/" element={<Navigate to="/dashboard" replace />} />
