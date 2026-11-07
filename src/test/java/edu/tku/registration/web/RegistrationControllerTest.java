@@ -309,8 +309,9 @@ class RegistrationControllerTest {
     }
 
     @Test
-    @DisplayName("FR3-EX5: a course of another semester (CS102 in 114-2) can be registered")
+    @DisplayName("FR3-EX5: a course of another semester (CS102 in 114-2) can be registered while 114-2's period is open (clock 2026-02-01)")
     void anySemester() throws Exception {
+        clock.set("2026-02-01T09:00:00+08:00");
         register(ALICE, idOf("CS102", "114-2"))
                 .andExpect(status().isCreated())
                 .andExpect(jsonPath("$.message").value("Successfully registered for CS102."))
@@ -318,10 +319,19 @@ class RegistrationControllerTest {
     }
 
     @Test
-    @DisplayName("FR3-EX6: the registration period is not enforced (clock outside both periods still gives 201)")
-    void periodNotEnforced() throws Exception {
+    @DisplayName("FR3-EX5: at 2026-09-01 (outside 114-2's period) CS102 is rejected with 409 'Registration is closed for semester 114-2.'")
+    void otherSemesterClosedAtFall() throws Exception {
+        register(ALICE, idOf("CS102", "114-2"))
+                .andExpect(jsonError(409, "Registration is closed for semester 114-2."));
+    }
+
+    @Test
+    @DisplayName("FR3-EX6: the registration period is enforced (clock outside both periods gives 409 'Registration is closed for semester 115-1.')")
+    void periodEnforced() throws Exception {
         clock.set("2027-06-01T09:00:00+08:00");
-        register(ALICE, cs101Id).andExpect(status().isCreated());
+        register(ALICE, cs101Id).andExpect(jsonError(409, "Registration is closed for semester 115-1."));
+        assertNothingWritten(registrationRepository.count());
+        assertThat(fresh(cs101Id).getAvailableSeats()).isEqualTo(50);
     }
 
     @Test

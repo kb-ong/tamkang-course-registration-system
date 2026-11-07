@@ -13,6 +13,7 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.context.annotation.Import;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.test.annotation.DirtiesContext;
@@ -20,6 +21,7 @@ import org.springframework.test.annotation.DirtiesContext;
 /** FR6 service-level criteria. Not @Transactional; throw-away courses are removed after each test. */
 @SpringBootTest
 @DirtiesContext(classMode = DirtiesContext.ClassMode.AFTER_CLASS)
+@Import(edu.tku.registration.support.PinnedClockConfig.class)
 class CourseFullServiceTest {
 
     private static final String ALICE = "410000001";

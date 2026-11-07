@@ -10,10 +10,14 @@ import org.springframework.security.core.AuthenticationException;
 import org.springframework.web.ErrorResponse;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
+import org.springframework.web.method.annotation.MethodArgumentTypeMismatchException;
 
 import edu.tku.registration.service.AlreadyRegisteredException;
 import edu.tku.registration.service.CourseFullException;
 import edu.tku.registration.service.CourseNotFoundException;
+import edu.tku.registration.service.DropClosedException;
+import edu.tku.registration.service.NotRegisteredException;
+import edu.tku.registration.service.RegistrationClosedException;
 import edu.tku.registration.service.RegistrationConflictException;
 import edu.tku.registration.service.SemesterNotFoundException;
 import edu.tku.registration.service.StudentNotFoundException;
@@ -34,15 +38,22 @@ public class ApiExceptionHandler {
         return error(HttpStatus.NOT_FOUND, "Student not found.");
     }
 
-    @ExceptionHandler({SemesterNotFoundException.class, CourseNotFoundException.class})
+    @ExceptionHandler({SemesterNotFoundException.class, CourseNotFoundException.class,
+            NotRegisteredException.class})
     public ResponseEntity<ApiError> handleNotFound(RuntimeException ex) {
         return error(HttpStatus.NOT_FOUND, ex.getMessage());
     }
 
     @ExceptionHandler({AlreadyRegisteredException.class, CourseFullException.class,
-            RegistrationConflictException.class})
+            RegistrationConflictException.class,
+            RegistrationClosedException.class, DropClosedException.class})
     public ResponseEntity<ApiError> handleConflict(RuntimeException ex) {
         return error(HttpStatus.CONFLICT, ex.getMessage());
+    }
+
+    @ExceptionHandler(MethodArgumentTypeMismatchException.class)
+    public ResponseEntity<ApiError> handleTypeMismatch(MethodArgumentTypeMismatchException ex) {
+        return error(HttpStatus.BAD_REQUEST, "Malformed request.");
     }
 
     @ExceptionHandler(HttpMessageNotReadableException.class)

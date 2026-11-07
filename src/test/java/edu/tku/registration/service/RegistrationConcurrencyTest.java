@@ -16,6 +16,7 @@ import java.util.concurrent.TimeUnit;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.context.annotation.Import;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.test.annotation.DirtiesContext;
@@ -23,6 +24,7 @@ import org.springframework.test.annotation.DirtiesContext;
 /** Concurrency tests (FR3-EX12/13/14). Not @Transactional: every thread runs its own transactions. */
 @SpringBootTest
 @DirtiesContext(classMode = DirtiesContext.ClassMode.AFTER_CLASS)
+@Import(edu.tku.registration.support.PinnedClockConfig.class)
 class RegistrationConcurrencyTest {
 
     private static final String ALICE = "410000001";

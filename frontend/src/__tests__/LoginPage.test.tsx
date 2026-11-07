@@ -11,9 +11,16 @@ vi.mock("../api/dashboard", () => ({
   fetchDashboard: vi.fn(),
 }));
 
+vi.mock("../api/registrations", () => ({
+  fetchRegistrations: vi.fn(),
+  dropCourse: vi.fn(),
+}));
+
 import { fetchMe, login, logout } from "../api/auth";
 import { fetchDashboard } from "../api/dashboard";
 import { ApiError } from "../api/client";
+import { fetchRegistrations } from "../api/registrations";
+import { emptySchedule } from "./scheduleFixtures";
 import { ALICE, dashboardExample, renderApp } from "./fixtures";
 
 const mockFetchMe = vi.mocked(fetchMe);
@@ -22,6 +29,7 @@ const mockLogout = vi.mocked(logout);
 const mockFetchDashboard = vi.mocked(fetchDashboard);
 
 beforeEach(() => {
+  vi.mocked(fetchRegistrations).mockReset().mockResolvedValue(emptySchedule());
   mockFetchMe.mockReset().mockResolvedValue(null);
   mockLogin.mockReset();
   mockLogout.mockReset().mockResolvedValue(undefined);

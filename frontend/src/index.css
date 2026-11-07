@@ -649,3 +649,159 @@ body {
     padding: 16px;
   }
 }
+
+/* ---------- Period banner (courses) ---------- */
+
+.period-banner {
+  margin-bottom: 16px;
+  border-radius: 10px;
+  font-weight: 500;
+}
+
+.closed-note {
+  flex-basis: 100%;
+  font-size: 12px;
+  color: #ad6800;
+}
+
+/* ---------- Registered courses (dashboard) ---------- */
+
+.registered-card .ant-card-head {
+  border-bottom: 3px solid var(--gold);
+}
+
+.registered-feedback,
+.registered-note {
+  margin-bottom: 16px;
+  border-radius: 10px;
+}
+
+.registered-toolbar {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: flex-end;
+  justify-content: space-between;
+  gap: 16px;
+  padding-bottom: 16px;
+  margin-bottom: 16px;
+  border-bottom: 1px solid #eef0f5;
+}
+
+.registered-toolbar__actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+
+.registered-toolbar__actions .ant-btn {
+  height: 40px;
+  font-weight: 600;
+}
+
+.registered-loading {
+  display: flex;
+  justify-content: center;
+  padding: 32px 0;
+}
+
+.registered-empty.ant-empty {
+  padding: 24px 0;
+}
+
+.drop-confirm {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 8px;
+}
+
+.drop-confirm__text {
+  font-weight: 600;
+  color: #cf1322;
+}
+
+.registered-total {
+  display: flex;
+  align-items: baseline;
+  justify-content: flex-end;
+  gap: 10px;
+  margin-top: 16px;
+  padding: 12px 16px;
+  border-radius: 10px;
+  background: #eef2f9;
+  border-left: 4px solid var(--gold);
+}
+
+.registered-total__label {
+  color: var(--navy-dark);
+  font-weight: 600;
+}
+
+.registered-total__value {
+  font-size: 24px;
+  font-weight: 700;
+  color: var(--navy);
+}
+
+.print-only {
+  display: none;
+}
+
+.print-header {
+  margin-bottom: 16px;
+  padding-bottom: 8px;
+  border-bottom: 2px solid #000;
+}
+
+.print-header__student {
+  font-size: 18px;
+  font-weight: 700;
+}
+
+@media (max-width: 575.98px) {
+  .registered-card .ant-card-body {
+    padding: 16px;
+  }
+
+  .registered-toolbar__field,
+  .registered-toolbar .courses-toolbar__field,
+  .registered-toolbar__actions {
+    width: 100%;
+    min-width: 0;
+  }
+
+  .registered-toolbar__actions .ant-btn {
+    flex: 1 1 0;
+  }
+
+  .registered-total {
+    justify-content: space-between;
+  }
+}
+
+@media print {
+  body * {
+    visibility: hidden !important;
+  }
+
+  .print-area,
+  .print-area * {
+    visibility: visible !important;
+  }
+
+  .print-area {
+    position: absolute;
+    left: 0;
+    top: 0;
+    width: 100%;
+    box-shadow: none;
+  }
+
+  .print-area .no-print {
+    display: none !important;
+  }
+
+  .print-area .print-only {
+    display: block !important;
+  }
+}

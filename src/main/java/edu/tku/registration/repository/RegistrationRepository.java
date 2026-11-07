@@ -1,6 +1,7 @@
 package edu.tku.registration.repository;
 
 import java.util.List;
+import java.util.Optional;
 
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
@@ -18,4 +19,14 @@ public interface RegistrationRepository extends JpaRepository<Registration, Long
                                        @Param("semesterCode") String semesterCode);
 
     boolean existsByStudent_IdAndCourse_Id(Long studentPk, Long courseId);
+
+    Optional<Registration> findByStudent_IdAndCourse_Id(Long studentPk, Long courseId);
+
+    @Query("""
+            select r from Registration r join fetch r.course c join fetch c.semester s
+            where r.student.studentId = :studentId and s.code = :semesterCode
+            order by c.courseCode asc
+            """)
+    List<Registration> findScheduleRows(@Param("studentId") String studentId,
+                                        @Param("semesterCode") String semesterCode);
 }

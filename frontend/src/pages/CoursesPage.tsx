@@ -10,6 +10,11 @@ import { useAuth } from '../auth/AuthContext';
 
 type Feedback = { kind: 'success' | 'error'; text: string } | null;
 
+/** "2026-08-01T00:00:00" -> "2026-08-01 00:00" */
+function formatDateTime(value: string): string {
+  return value.replace('T', ' ').slice(0, 16);
+}
+
 const GENERIC_REGISTER_ERROR = 'Unable to register. Please try again later.';
 
 function seatColor(course: CourseSummary): string {
@@ -46,6 +51,8 @@ export function CoursesPage() {
   const requestSeq = useRef(0);
 
   const semesterCode = listing?.semester?.code ?? '';
+  const period = listing?.registrationPeriod ?? null;
+  const open = period ? period.open : true;
 
   const load = useCallback(
     async (semester: string, q: string) => {
@@ -226,7 +233,7 @@ export function CoursesPage() {
           <Button
             type="primary"
             data-testid={`register-btn-${c.id}`}
-            disabled={c.registered || pending.has(c.id) || c.availableSeats <= 0}
+            disabled={c.registered || pending.has(c.id) || c.availableSeats <= 0 || !open}
             loading={pending.has(c.id)}
             onClick={() => void handleRegister(c)}
           >
@@ -235,6 +242,11 @@ export function CoursesPage() {
           {!c.registered && c.availableSeats <= 0 && (
             <span className="full-note" data-testid={`full-note-${c.id}`}>
               No seats available.
+            </span>
+          )}
+          {!c.registered && !open && (
+            <span className="closed-note" data-testid={`closed-note-${c.id}`}>
+              Registration is closed.
             </span>
           )}
           {c.registered && (
@@ -251,6 +263,30 @@ export function CoursesPage() {
       ),
     },
   ];
+
+  const renderBanner = () => {
+    if (!listing?.semester || !period) return null;
+    const hasDates = period.startAt && period.endAt;
+    const range = hasDates
+      ? `Period: ${formatDateTime(period.startAt!)} to ${formatDateTime(period.endAt!)}.`
+      : '';
+    let text: string;
+    if (!hasDates) {
+      text = 'Registration is closed. No registration period is scheduled for this semester.';
+    } else {
+      text = `Registration is ${period.open ? 'open' : 'closed'}. ${range}`;
+    }
+    return (
+      <Alert
+        className="period-banner"
+        data-testid="period-banner"
+        data-status={period.open ? 'open' : 'closed'}
+        type={period.open ? 'success' : 'warning'}
+        showIcon
+        message={text}
+      />
+    );
+  };
 
   const renderBody = () => {
     if (loadError) {
@@ -321,6 +357,8 @@ export function CoursesPage() {
           message={feedback.text}
         />
       )}
+
+      {renderBanner()}
 
       <Card className="courses-card" variant="borderless">
         <div className="courses-toolbar">

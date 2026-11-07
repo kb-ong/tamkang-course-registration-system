@@ -22,6 +22,7 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.context.annotation.Import;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.orm.ObjectOptimisticLockingFailureException;
@@ -31,6 +32,7 @@ import org.springframework.test.context.bean.override.mockito.MockitoSpyBean;
 /** FR6-EX1 / FR6-EX2: deterministic retry outcomes. Not @Transactional. */
 @SpringBootTest
 @DirtiesContext(classMode = DirtiesContext.ClassMode.AFTER_CLASS)
+@Import(edu.tku.registration.support.PinnedClockConfig.class)
 class CourseFullRetryTest {
 
     private static final String ALICE = "410000001";
