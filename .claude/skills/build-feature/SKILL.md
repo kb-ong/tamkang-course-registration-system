@@ -25,7 +25,7 @@ Show the human the summary and assumptions in a few lines. Don't wait for approv
 ## Stage 2: Build (in parallel)
 Send **both** calls in one message so they run at the same time:
 - **coder**: "Implement `docs/specs/<feature-id>.md`."
-- **tester** (Mode A): "Write tests for `docs/specs/<feature-id>.md`. Do not read src/main."
+- **tester** (Mode A): "Write tests for `docs/specs/<feature-id>.md`. Do not read production code (src/main/ or non-test files in frontend/)."
 
 ## Stage 3: Test and fix loop (max 3 rounds)
 1. Call **tester** (Mode B): "Run the tests and triage. Write `.pipeline/<feature-id>/test-report.md`."
@@ -61,5 +61,5 @@ Call **git-publisher** with the feature id, the spec path, a summary, the test c
 Give the human the branch name and the PR link (or compare URL) it returns.
 
 ## Rules for you as orchestrator
-- Don't edit `src/` yourself, even for "quick fixes". Route the change to the right agent so the coder-only-main / tester-only-test rule holds.
+- Don't edit `src/` or `frontend/` yourself, even for "quick fixes". Route the change to the right agent so the coder-only-main / tester-only-test rule holds.
 - Keep your updates to the human short: one line per stage, with details only at Stage 5 or when blocked.

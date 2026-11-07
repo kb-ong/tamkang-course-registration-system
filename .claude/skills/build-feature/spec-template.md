@@ -33,10 +33,15 @@ public class XxxService {
 Exceptions: `edu.tku.registration.service.<Name>Exception` → when it is thrown.
 
 ### 3.3 Web layer
-| Method | Path | Params | Success result | Failure result |
-|--------|------|--------|----------------|----------------|
-| GET | /courses | `q`, `semester` | view `courses`, model `courses` | — |
-| POST | /registrations | `courseId` | redirect `/dashboard`, flash `message` | redirect `/courses`, flash `error` |
+REST API (all under `/api`, JSON in/out, CSRF token required on non-GET):
+| Method | Path | Request | Success (status + JSON) | Failures (status + JSON) |
+|--------|------|---------|--------------------------|--------------------------|
+| GET | /api/courses | query `q`, `semester` | 200 `[{ "id", "code", ... }]` | 401 if not logged in |
+| POST | /api/registrations | `{ "courseId": 1 }` | 201 `{ "message": "..." }` | 409 `{ "message": "Course Full" }` |
+
+Frontend routes:
+| Route | Page component | Auth | What it shows / does |
+|-------|----------------|------|----------------------|
 
 Authentication required: <yes/no per endpoint>
 
@@ -46,7 +51,7 @@ Authentication required: <yes/no per endpoint>
 | register.success | Successfully registered for {courseCode}. |
 
 ### 3.5 UI elements tests rely on
-<e.g. the register button has `id="register-btn-{courseId}"` and the `disabled` attribute outside the period>
+<e.g. the register button has `data-testid="register-btn-{courseId}"`, label "Register", and is disabled outside the period>
 
 ## 4. Assumptions & decisions
 <Every gap in the requirements and the decision taken. The human confirms or overrules these at the approval gate.>

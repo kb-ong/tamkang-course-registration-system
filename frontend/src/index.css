@@ -1,0 +1,436 @@
+:root {
+  --navy: #1f3a68;
+  --navy-dark: #142849;
+  --navy-deep: #0d1c36;
+  --gold: #f5c242;
+  --page-bg: #f3f5f9;
+}
+
+* {
+  box-sizing: border-box;
+}
+
+html,
+body,
+#root {
+  margin: 0;
+  min-height: 100%;
+}
+
+body {
+  background: var(--page-bg);
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+/* ---------- Shared ---------- */
+
+.brand-mark {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  flex: none;
+  border-radius: 50%;
+  color: var(--navy);
+  background: linear-gradient(145deg, #ffffff 0%, #dfe7f5 100%);
+  box-shadow: 0 0 0 3px rgba(245, 194, 66, 0.85), 0 6px 18px rgba(0, 0, 0, 0.25);
+}
+
+.full-page-loading {
+  min-height: 100vh;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: var(--page-bg);
+}
+
+.full-page-loading__spacer {
+  width: 160px;
+  height: 80px;
+}
+
+/* ---------- Login ---------- */
+
+.login-page {
+  position: relative;
+  min-height: 100vh;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 48px 16px;
+  overflow: hidden;
+  background:
+    radial-gradient(circle at 15% 20%, rgba(255, 255, 255, 0.08) 0, transparent 40%),
+    radial-gradient(circle at 85% 85%, rgba(245, 194, 66, 0.12) 0, transparent 35%),
+    linear-gradient(135deg, var(--navy-deep) 0%, var(--navy) 55%, #2f5597 100%);
+}
+
+.login-page::before {
+  /* subtle grid texture */
+  content: '';
+  position: absolute;
+  inset: 0;
+  background-image:
+    linear-gradient(rgba(255, 255, 255, 0.04) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(255, 255, 255, 0.04) 1px, transparent 1px);
+  background-size: 40px 40px;
+  pointer-events: none;
+}
+
+.login-page__decor {
+  position: absolute;
+  border-radius: 50%;
+  border: 1px solid rgba(255, 255, 255, 0.12);
+  pointer-events: none;
+}
+
+.login-page__decor--one {
+  width: 520px;
+  height: 520px;
+  top: -200px;
+  left: -160px;
+}
+
+.login-page__decor--two {
+  width: 420px;
+  height: 420px;
+  right: -140px;
+  bottom: -160px;
+  border-color: rgba(245, 194, 66, 0.25);
+}
+
+.login-page__inner {
+  position: relative;
+  z-index: 1;
+  width: 100%;
+  max-width: 420px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+
+.login-brand-block {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  text-align: center;
+  margin-bottom: 28px;
+}
+
+.login-brand-block .brand-mark {
+  margin-bottom: 18px;
+}
+
+.login-brand-block h1.login-brand-block__title {
+  color: #ffffff;
+  margin: 0 0 6px;
+  font-size: 26px;
+  font-weight: 700;
+  line-height: 1.3;
+  letter-spacing: 0.2px;
+}
+
+.login-brand-block .login-brand-block__tagline {
+  color: rgba(255, 255, 255, 0.72);
+  font-size: 14px;
+  letter-spacing: 1.5px;
+  text-transform: uppercase;
+}
+
+.login-card {
+  width: 100%;
+  max-width: 400px;
+  border-radius: 14px;
+  border-top: 4px solid var(--gold);
+  box-shadow: 0 24px 48px rgba(8, 20, 45, 0.35);
+}
+
+.login-card .ant-card-head {
+  padding: 20px 28px 12px;
+  border-bottom: none;
+}
+
+.login-card .ant-card-head-title {
+  white-space: normal;
+  overflow: visible;
+}
+
+.login-card .ant-card-body {
+  padding: 12px 28px 20px;
+}
+
+.login-card__title {
+  font-size: 22px;
+  font-weight: 700;
+  color: var(--navy);
+}
+
+.login-card__subtitle {
+  margin-top: 4px;
+  font-size: 14px;
+  font-weight: 400;
+  color: rgba(0, 0, 0, 0.5);
+}
+
+.login-card__alert {
+  margin-bottom: 18px;
+}
+
+.login-card__input-icon {
+  color: rgba(0, 0, 0, 0.35);
+}
+
+.login-card__submit-item {
+  margin-top: 8px;
+  margin-bottom: 4px;
+}
+
+.login-card__submit-item .ant-btn {
+  height: 46px;
+  font-weight: 600;
+}
+
+/* ---------- App shell ---------- */
+
+.app-shell {
+  min-height: 100vh;
+}
+
+.app-header {
+  position: sticky;
+  top: 0;
+  z-index: 10;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 16px;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.18);
+  border-bottom: 3px solid var(--gold);
+}
+
+.app-header__brand {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  min-width: 0;
+}
+
+.app-header__brand .brand-mark {
+  box-shadow: 0 0 0 2px rgba(245, 194, 66, 0.85);
+}
+
+.app-header__title {
+  color: #ffffff;
+  font-size: 18px;
+  font-weight: 600;
+  letter-spacing: 0.2px;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.app-header__user {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  flex: none;
+}
+
+.app-header__avatar.ant-avatar {
+  background: var(--gold);
+  color: var(--navy-dark);
+  font-weight: 700;
+}
+
+.app-header__user-name {
+  color: #ffffff;
+  font-weight: 500;
+  white-space: nowrap;
+}
+
+.app-header__logout.ant-btn {
+  border-color: rgba(255, 255, 255, 0.45);
+}
+
+.app-sider.ant-layout-sider {
+  border-right: 1px solid #e6e9f0;
+}
+
+.app-sider__nav {
+  padding-top: 12px;
+}
+
+.app-sider__nav .ant-menu-inline,
+.app-sider__nav .ant-menu-vertical {
+  border-inline-end: none !important;
+}
+
+.app-content {
+  padding: 28px 32px;
+}
+
+.app-content__inner {
+  max-width: 1200px;
+  margin: 0 auto;
+}
+
+.app-footer {
+  text-align: center;
+  color: rgba(0, 0, 0, 0.45);
+  font-size: 13px;
+}
+
+/* ---------- Dashboard ---------- */
+
+.welcome-banner {
+  position: relative;
+  overflow: hidden;
+  padding: 28px 32px;
+  margin-bottom: 24px;
+  border-radius: 14px;
+  color: #ffffff;
+  background:
+    radial-gradient(circle at 95% 10%, rgba(245, 194, 66, 0.28) 0, transparent 35%),
+    linear-gradient(120deg, var(--navy-dark) 0%, var(--navy) 60%, #2f5597 100%);
+  box-shadow: 0 10px 24px rgba(20, 40, 73, 0.2);
+}
+
+.welcome-banner h2.welcome-banner__title {
+  color: #ffffff;
+  margin: 0 0 6px;
+}
+
+.welcome-banner .welcome-banner__subtitle {
+  color: rgba(255, 255, 255, 0.8);
+  margin: 0;
+  font-size: 15px;
+}
+
+.dashboard__loading {
+  display: flex;
+  justify-content: center;
+  padding: 64px 0;
+}
+
+.dash-card {
+  height: 100%;
+  border-radius: 14px;
+  box-shadow: 0 1px 3px rgba(16, 24, 40, 0.06), 0 4px 16px rgba(16, 24, 40, 0.06);
+}
+
+.dash-card__title {
+  display: inline-flex;
+  align-items: center;
+  gap: 10px;
+  color: var(--navy);
+  font-weight: 600;
+}
+
+.dash-card__title-icon {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 32px;
+  height: 32px;
+  border-radius: 8px;
+  background: #e8eef8;
+  color: var(--navy);
+}
+
+.profile-summary {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  padding-bottom: 16px;
+  margin-bottom: 12px;
+  border-bottom: 1px dashed #e3e7ef;
+}
+
+.profile-summary__avatar.ant-avatar {
+  background: var(--navy);
+  font-size: 24px;
+  font-weight: 600;
+}
+
+.profile-summary__name {
+  font-size: 18px;
+  font-weight: 600;
+  color: rgba(0, 0, 0, 0.88);
+}
+
+.profile-summary__role {
+  color: rgba(0, 0, 0, 0.5);
+}
+
+.dash-descriptions .ant-descriptions-item-label {
+  width: 170px;
+  color: rgba(0, 0, 0, 0.5);
+}
+
+.dash-descriptions .ant-descriptions-item-content {
+  font-weight: 500;
+  word-break: break-word;
+}
+
+/* ---------- Responsive ---------- */
+
+@media (max-width: 767.98px) {
+  .app-content {
+    padding: 20px 16px;
+  }
+
+  .welcome-banner {
+    padding: 22px 20px;
+  }
+
+  .welcome-banner h2.welcome-banner__title {
+    font-size: 22px;
+  }
+}
+
+@media (max-width: 575.98px) {
+  .ant-layout-header.app-header {
+    padding: 0 12px;
+  }
+
+  .app-header__title {
+    font-size: 14px;
+    white-space: normal;
+    line-height: 1.2;
+    display: -webkit-box;
+    -webkit-line-clamp: 2;
+    -webkit-box-orient: vertical;
+  }
+
+  .app-header__user-name,
+  .app-header__avatar.ant-avatar {
+    display: none;
+  }
+
+  .app-header__logout.ant-btn {
+    padding-inline: 10px;
+  }
+
+  .login-brand-block h1.login-brand-block__title {
+    font-size: 21px;
+  }
+
+  .login-card .ant-card-head,
+  .login-card .ant-card-body {
+    padding-left: 20px;
+    padding-right: 20px;
+  }
+
+  .dash-descriptions .ant-descriptions-item-label {
+    width: 120px;
+  }
+
+  .app-sider.ant-layout-sider {
+    position: fixed;
+    top: 64px;
+    bottom: 0;
+    left: 0;
+    z-index: 20;
+    box-shadow: 4px 0 16px rgba(0, 0, 0, 0.12);
+  }
+}

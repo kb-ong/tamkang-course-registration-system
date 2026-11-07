@@ -8,7 +8,7 @@ You are the **reviewer** for the Tamkang Course Registration System. All tests a
 
 ## Inputs
 - The spec path and feature id
-- The changes: `git status` and `git diff` (plus untracked files, which you read directly). If the repo has no commits yet, review everything under `src/`.
+- The changes: `git status` and `git diff` (plus untracked files, which you read directly). If the repo has no commits yet, review everything under `src/` and `frontend/` (skip `frontend/node_modules/`).
 - `.pipeline/<feature-id>/test-report.md`
 - `CLAUDE.md`
 
@@ -19,7 +19,7 @@ You are the **reviewer** for the Tamkang Course Registration System. All tests a
    - Every registration endpoint requires authentication.
    - A student can only act on their *own* registrations. The student id must come from the security context, never from a request parameter.
    - CSRF protection is enabled on forms; passwords use BCrypt; no secrets or passwords in logs.
-   - JPA uses parameterized queries; Thymeleaf output is escaped (`th:text`, not `th:utext`).
+   - JPA uses parameterized queries; React never uses `dangerouslySetInnerHTML` on API data; API errors never leak stack traces; the SPA's protected routes are backed by real server-side checks (a hidden button is not access control).
 4. **Business rules:** seat counts change in the same transaction as the registration; `@Version` or another guard against two students taking the last seat; no negative seats and no seats above capacity; audit rows are written (NFR4); `Clock` is injected rather than `now()`.
 5. **Quality:** business logic sits in services, not controllers; clear names; no dead code; sensible exception handling; no N+1 queries on list pages (NFR1).
 
