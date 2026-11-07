@@ -11,6 +11,7 @@ import { ApiError } from '../api/client';
 import { fetchDashboard } from '../api/dashboard';
 import type { CurrentSemester, DashboardData } from '../api/types';
 import { useAuth } from '../auth/AuthContext';
+import { RegisteredCoursesSection } from '../components/RegisteredCoursesSection';
 
 type LoadState =
   | { kind: 'loading' }
@@ -176,6 +177,9 @@ export function DashboardPage() {
           </Col>
           <Col xs={24} lg={12}>
             <SemesterCard semester={state.data.currentSemester ?? null} />
+          </Col>
+          <Col xs={24}>
+            <RegisteredCoursesSection />
           </Col>
         </Row>
       )}

@@ -28,6 +28,7 @@ public class RegistrationService {
     private final CourseRepository courseRepository;
     private final RegistrationRepository registrationRepository;
     private final AuditLogRepository auditLogRepository;
+    private final SemesterService semesterService;
     private final TransactionTemplate transactionTemplate;
     private final TransactionTemplate readOnlyTemplate;
     private final Clock clock;
@@ -35,11 +36,12 @@ public class RegistrationService {
     public RegistrationService(StudentRepository studentRepository, CourseRepository courseRepository,
                                RegistrationRepository registrationRepository,
                                AuditLogRepository auditLogRepository,
-                               PlatformTransactionManager transactionManager, Clock clock) {
+                               SemesterService semesterService, PlatformTransactionManager transactionManager, Clock clock) {
         this.studentRepository = studentRepository;
         this.courseRepository = courseRepository;
         this.registrationRepository = registrationRepository;
         this.auditLogRepository = auditLogRepository;
+        this.semesterService = semesterService;
         this.transactionTemplate = new TransactionTemplate(transactionManager);
         this.readOnlyTemplate = new TransactionTemplate(transactionManager);
         this.readOnlyTemplate.setReadOnly(true);
@@ -69,6 +71,9 @@ public class RegistrationService {
                 .orElseThrow(() -> new StudentNotFoundException(studentId));
         Course course = (courseId == null ? java.util.Optional.<Course>empty() : courseRepository.findById(courseId))
                 .orElseThrow(() -> new CourseNotFoundException(courseId));
+        if (!semesterService.isRegistrationOpen(course.getSemester().getCode())) {
+            throw new RegistrationClosedException(course.getSemester().getCode());
+        }
         if (registrationRepository.existsByStudent_IdAndCourse_Id(student.getId(), course.getId())) {
             throw new AlreadyRegisteredException(course.getCourseCode());
         }
@@ -88,5 +93,39 @@ public class RegistrationService {
         auditLogRepository.save(new AuditLog(studentId, course.getId(), AuditAction.REGISTER, now));
         return new RegistrationResult(registration.getId(), course.getId(), course.getCourseCode(),
                 course.getCourseName(), course.getAvailableSeats(), now);
+    }
+
+    /** Not @Transactional: same per-attempt transaction and retry design as register. */
+    public DropResult drop(String studentId, Long courseId) {
+        for (int attempt = 1; attempt <= MAX_ATTEMPTS; attempt++) {
+            try {
+                return transactionTemplate.execute(status -> attemptDrop(studentId, courseId));
+            } catch (ConcurrencyFailureException ex) {
+                // retry with a fresh transaction and fresh read
+            }
+        }
+        throw new RegistrationConflictException();
+    }
+
+    private DropResult attemptDrop(String studentId, Long courseId) {
+        Student student = studentRepository.findByStudentId(studentId)
+                .orElseThrow(() -> new StudentNotFoundException(studentId));
+        Course course = (courseId == null ? java.util.Optional.<Course>empty() : courseRepository.findById(courseId))
+                .orElseThrow(() -> new CourseNotFoundException(courseId));
+        String semesterCode = course.getSemester().getCode();
+        if (!semesterService.isRegistrationOpen(semesterCode)) {
+            throw new DropClosedException(semesterCode);
+        }
+        Registration registration = registrationRepository
+                .findByStudent_IdAndCourse_Id(student.getId(), course.getId())
+                .orElseThrow(() -> new NotRegisteredException(course.getCourseCode()));
+        registrationRepository.delete(registration);
+        registrationRepository.flush();
+        course.setAvailableSeats(Math.min(course.getCapacity(), course.getAvailableSeats() + 1));
+        courseRepository.saveAndFlush(course);
+        auditLogRepository.save(new AuditLog(studentId, course.getId(), AuditAction.DROP,
+                LocalDateTime.now(clock)));
+        return new DropResult(course.getId(), course.getCourseCode(), course.getCourseName(),
+                course.getAvailableSeats());
     }
 }

@@ -2,6 +2,7 @@ package edu.tku.registration.service;
 
 import java.time.Clock;
 import java.time.LocalDateTime;
+import java.time.temporal.ChronoUnit;
 import java.util.Optional;
 
 import org.springframework.stereotype.Service;
@@ -34,19 +35,27 @@ public class SemesterService {
      */
     @Transactional(readOnly = true)
     public Optional<CurrentSemesterInfo> getCurrentSemesterInfo() {
-        Optional<Semester> current = semesterRepository.findByCurrentTrue();
-        if (current.isEmpty()) {
-            return Optional.empty();
-        }
-        Semester semester = current.get();
-        Optional<RegistrationPeriod> period = registrationPeriodRepository.findBySemester_Code(semester.getCode());
+        return semesterRepository.findByCurrentTrue().map(semester -> {
+            RegistrationPeriodInfo p = getRegistrationPeriod(semester.getCode());
+            return new CurrentSemesterInfo(semester.getCode(), semester.getName(), p.startAt(), p.endAt(), p.open());
+        });
+    }
+
+    @Transactional(readOnly = true)
+    public RegistrationPeriodInfo getRegistrationPeriod(String semesterCode) {
+        Optional<RegistrationPeriod> period = semesterCode == null ? Optional.empty()
+                : registrationPeriodRepository.findBySemester_Code(semesterCode);
         if (period.isEmpty()) {
-            return Optional.of(new CurrentSemesterInfo(semester.getCode(), semester.getName(), null, null, false));
+            return new RegistrationPeriodInfo(null, null, false);
         }
         LocalDateTime startAt = period.get().getStartAt();
         LocalDateTime endAt = period.get().getEndAt();
-        LocalDateTime now = LocalDateTime.now(clock);
+        LocalDateTime now = LocalDateTime.now(clock).truncatedTo(ChronoUnit.SECONDS);
         boolean open = !now.isBefore(startAt) && !now.isAfter(endAt);
-        return Optional.of(new CurrentSemesterInfo(semester.getCode(), semester.getName(), startAt, endAt, open));
+        return new RegistrationPeriodInfo(startAt, endAt, open);
+    }
+
+    public boolean isRegistrationOpen(String semesterCode) {
+        return getRegistrationPeriod(semesterCode).open();
     }
 }

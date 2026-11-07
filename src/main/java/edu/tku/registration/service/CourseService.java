@@ -20,12 +20,14 @@ public class CourseService {
     private final CourseRepository courseRepository;
     private final SemesterRepository semesterRepository;
     private final RegistrationRepository registrationRepository;
+    private final SemesterService semesterService;
 
     public CourseService(CourseRepository courseRepository, SemesterRepository semesterRepository,
-                         RegistrationRepository registrationRepository) {
+                         RegistrationRepository registrationRepository, SemesterService semesterService) {
         this.courseRepository = courseRepository;
         this.semesterRepository = semesterRepository;
         this.registrationRepository = registrationRepository;
+        this.semesterService = semesterService;
     }
 
     @Transactional(readOnly = true)
@@ -39,7 +41,7 @@ public class CourseService {
         if (semesterCode == null || semesterCode.isBlank()) {
             semester = semesterRepository.findByCurrentTrue().orElse(null);
             if (semester == null) {
-                return new CourseListing(null, List.of());
+                return new CourseListing(null, null, List.of());
             }
         } else {
             String code = semesterCode.trim();
@@ -63,7 +65,7 @@ public class CourseService {
                 .map(c -> new CourseSummary(c.getId(), c.getCourseCode(), c.getCourseName(), c.getCreditHours(),
                         c.getInstructor(), c.getCapacity(), c.getAvailableSeats(), registered.contains(c.getId())))
                 .toList();
-        return new CourseListing(toOption(semester), summaries);
+        return new CourseListing(toOption(semester), semesterService.getRegistrationPeriod(semester.getCode()), summaries);
     }
 
     private static SemesterOption toOption(Semester s) {

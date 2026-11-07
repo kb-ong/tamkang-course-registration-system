@@ -34,14 +34,47 @@ export interface CourseSummary {
   registered: boolean;
 }
 
+export interface RegistrationWindow {
+  startAt: string | null;
+  endAt: string | null;
+  open: boolean;
+}
+
 export interface CourseListing {
   semester: SemesterOption | null;
+  registrationPeriod?: RegistrationWindow | null;
   courses: CourseSummary[];
 }
 
 export interface RegistrationResult {
   message: string;
   registrationId: number;
+  courseId: number;
+  courseCode: string;
+  availableSeats: number;
+}
+
+export interface RegisteredCourse {
+  registrationId: number;
+  courseId: number;
+  code: string;
+  name: string;
+  credits: number;
+  instructor: string;
+  semesterCode: string;
+  registeredAt: string;
+}
+
+export interface RegistrationSchedule {
+  semester: SemesterOption | null;
+  semesters: SemesterOption[];
+  registrationPeriod: RegistrationWindow | null;
+  courses: RegisteredCourse[];
+  totalCredits: number;
+}
+
+export interface DropResult {
+  message: string;
   courseId: number;
   courseCode: string;
   availableSeats: number;
